@@ -3,8 +3,8 @@ default:
 
 [doc('Build rust library for android')]
 build:
-    # cargo ndk -t arm64-v8a -t armeabi-v7a -t x86 -t x86_64 --platform=29 --bindgen build
-    cargo ndk -t arm64-v8a --platform=29 --bindgen build
+    # eski: cargo ndk -t arm64-v8a --platform=29 --bindgen build
+    cargo ndk -t arm64-v8a --platform=29 build
 
 [doc('Build a zip module for KernelSU')]
 package: build
@@ -25,8 +25,8 @@ flash: package
 
 [doc('Build rust library for android')]
 build-release:
-    # cargo ndk -t arm64-v8a -t armeabi-v7a -t x86 -t x86_64 --platform=29 --bindgen build --release
-    cargo ndk -t arm64-v8a --platform=29 --bindgen build --release
+    # eski: cargo ndk -t arm64-v8a --platform=29 --bindgen build --release
+    cargo ndk -t arm64-v8a --platform=29 build --release
 
 [doc('Build a zip module for KernelSU')]
 package-release: build-release
@@ -40,7 +40,7 @@ package-release: build-release
     # cp target/x86_64-linux-android/release/libzygisk.so out/release/zygisk/x86_64.so
     cd out/release/ && zip -r ../zygisk-release.zip .
 
-[doc('Flash zygisk-debug.zip to your device')]
+[doc('Flash zygisk-release.zip to your device')]
 flash-release: package-release
     adb push out/zygisk-release.zip /data/local/tmp/
     adb shell su -c "/data/adb/ksud module install /data/local/tmp/zygisk-release.zip"
