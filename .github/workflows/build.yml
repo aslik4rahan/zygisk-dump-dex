@@ -16,12 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: nightly
-          target: aarch64-linux-android
-          override: true
+          targets: aarch64-linux-android
 
       - name: Install Just
         run: cargo install just
@@ -29,12 +27,23 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk
 
+      - name: Download Android NDK
+        run: |
+          wget https://dl.google.com/android/repository/android-ndk-r26d-linux.zip
+          unzip android-ndk-r26d-linux.zip
+          echo "ANDROID_NDK_HOME=$GITHUB_WORKSPACE/android-ndk-r26d" >> $GITHUB_ENV
+
+      - name: Fix Justfile (remove --bindgen)
+        run: sed -i 's/--bindgen//g' Justfile
+
       - name: Build project
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
         run: just package-release
 
       - name: Upload built artifact
         uses: actions/upload-artifact@v4
         with:
-          name: zygisk-debug-zip
-          path: out/zygisk-*.zip
+          name: zygisk-release
+          path: out/zygisk-release.zip
           compression-level: 9
